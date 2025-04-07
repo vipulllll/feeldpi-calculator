@@ -1,0 +1,183 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>feelDPI Converter</title>
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #121212;
+      color: #f0f0f0;
+      font-family: 'Courier Prime', monospace;
+      padding: 20px;
+    }
+    .container {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .section {
+      flex: 1;
+      min-width: 260px;
+      max-width: 300px;
+    }
+    .section input, .section select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      margin-bottom: 15px;
+      background: #1e1e1e;
+      border: 1px solid #333;
+      color: #f0f0f0;
+      font-family: inherit;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+    .feel-dpi {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      border: 2px solid #66ffcc;
+      padding: 20px;
+      background: #1a1a1a;
+      min-width: 120px;
+      max-width: 140px;
+      border-radius: 12px;
+      flex-grow: 0;
+    }
+    .feel-dpi input {
+      font-size: 1.5em;
+      font-weight: bold;
+      text-align: center;
+      background: #1e1e1e;
+      color: #f0f0f0;
+      border: 1px solid #333;
+      width: 100%;
+      border-radius: 8px;
+    }
+    .faq {
+      margin-top: 60vh;
+    }
+    .faq h3 {
+      color: #66ffcc;
+    }
+    .faq p {
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+<body>
+  <h1>feelDPI Sensitivity Converter</h1>
+  <div class="container">
+    <div class="section">
+      <label>Game</label>
+      <input list="games" id="game1" />
+      <label>Your DPI</label>
+      <input type="number" id="dpi1" />
+      <label>Your Sensitivity</label>
+      <input type="number" step="any" id="sens1" />
+      <label>cm/360</label>
+      <input type="text" id="cm360_1" readonly />
+    </div>
+    <div class="feel-dpi" id="feelBox">
+      <label>feelDPI</label>
+      <input type="number" step="any" id="feelDPI" />
+    </div>
+    <div class="section">
+      <label>Target Game</label>
+      <input list="games" id="game2" />
+      <label>DPI</label>
+      <input type="number" id="dpi2" />
+      <label>Converted Sensitivity</label>
+      <input type="number" step="any" id="sens2" />
+      <label>cm/360</label>
+      <input type="text" id="cm360_2" readonly />
+    </div>
+  </div>
+  <datalist id="games">
+    <option value="Valorant">
+    <option value="Apex Legends">
+    <option value="CS2">
+    <option value="Overwatch 2">
+    <option value="Rainbow Six Siege">
+    <option value="PUBG">
+    <option value="Fortnite">
+    <option value="Battlefield 2042">
+    <option value="Call of Duty MW3">
+    <option value="Destiny 2">
+    <option value="Paladins">
+    <option value="Quake Champions">
+    <option value="Escape from Tarkov">
+    <option value="Warface">
+    <option value="Titanfall 2">
+    <option value="Team Fortress 2">
+    <option value="Free Fire">
+    <option value="Call of Duty Mobile">
+    <option value="Minecraft">
+  </datalist>
+  <div class="faq">
+    <h3>FAQs</h3>
+    <p><strong>What is feelDPI?</strong><br/>feelDPI is a measure of how much you move your mouse to turn in-game, normalized to a 360° turn = 36.0 feelDPI.</p>
+    <p><strong>Why not just match eDPI?</strong><br/>eDPI (DPI × Sens) doesn't account for how different games interpret sensitivity. feelDPI matches actual turning feel.</p>
+    <p><strong>Does FOV affect feel?</strong><br/>Yes, Field of View can affect perceived sensitivity. This tool accounts for yaw values internally for accuracy.</p>
+    <p><strong>How accurate is this?</strong><br/>This is a very close match for general use, though extremely precise players may notice slight differences across engines.</p>
+  </div>
+  <script>
+    const yawTable = {
+      "Valorant": 0.07,
+      "Apex Legends": 0.022,
+      "CS2": 0.022,
+      "Overwatch 2": 0.0066,
+      "Rainbow Six Siege": 0.00223,
+      "PUBG": 0.0036,
+      "Fortnite": 0.0066,
+      "Battlefield 2042": 0.0066,
+      "Call of Duty MW3": 0.0066,
+      "Destiny 2": 0.0066,
+      "Paladins": 0.0066,
+      "Quake Champions": 0.01,
+      "Escape from Tarkov": 0.0031,
+      "Warface": 0.0033,
+      "Titanfall 2": 0.022,
+      "Team Fortress 2": 0.022,
+      "Free Fire": 0.007,
+      "Call of Duty Mobile": 0.007,
+      "Minecraft": 0.0057
+    };
+    function updateFeelDPI() {
+      const dpi = parseFloat(document.getElementById('dpi1').value);
+      const sens = parseFloat(document.getElementById('sens1').value);
+      const game = document.getElementById('game1').value;
+      if (isNaN(dpi) || isNaN(sens) || !yawTable[game]) return;
+      const yaw = yawTable[game];
+      const feel = 360 / (yaw * dpi * sens);
+      const cm360 = 2.54 * feel;
+      document.getElementById('feelDPI').value = feel.toFixed(2);
+      document.getElementById('cm360_1').value = cm360.toFixed(2) + ' cm';
+      updateConverted();
+    }
+    function updateConverted() {
+      const feel = parseFloat(document.getElementById('feelDPI').value);
+      const dpi2Elem = document.getElementById('dpi2');
+      const dpi = parseFloat(dpi2Elem.value || document.getElementById('dpi1').value);
+      const game = document.getElementById('game2').value;
+      if (isNaN(feel) || isNaN(dpi) || !yawTable[game]) return;
+      const yaw = yawTable[game];
+      const sens = 360 / (feel * yaw * dpi);
+      const cm360 = 2.54 * feel;
+      document.getElementById('sens2').value = sens.toFixed(4);
+      document.getElementById('cm360_2').value = cm360.toFixed(2) + ' cm';
+    }
+    document.querySelectorAll('input').forEach(input => {
+      input.addEventListener('input', () => {
+        updateFeelDPI();
+        updateConverted();
+      });
+    });
+  </script>
+</body>
+</html>
