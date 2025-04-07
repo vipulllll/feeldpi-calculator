@@ -18,9 +18,6 @@ feelDPI is a normalized measure of how far you need to move your mouse for a ful
 3. Select your target game and desired DPI.
 4. The matching sensitivity is shown automatically.
 
-## 🚀 Publish Online
-You can publish it using [GitHub Pages](https://pages.github.com/). Just upload this file to a GitHub repo and enable Pages from settings.
-
 ---
 
 Made with ❤️ by a gamer for gamers.
